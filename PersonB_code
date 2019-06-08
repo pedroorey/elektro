@@ -1,0 +1,48 @@
+# include <ThingSpeak.h>
+# include <ESP8266WiFi.h>
+# include "secret.h"
+
+//WiFi Variables
+char ssid[] = SECRET_SSID;
+char pass[] = SECRET_PASS;
+
+//thingspeak variables
+long myChannel_ID = SECRET_(H_ID);
+char myReadAPIKey[] = SECRET_ReadAPIKey;
+int FieldNumber_data = 2;
+
+int data_download = 0;
+int wait = 15000;
+WiFiClient Clients;
+
+void setup() {
+  Serial.begin(9600);
+  WiFi.mode(WIFI_STA);
+  ThingSpeak.begin(Clients);
+
+}
+
+void loop() {
+  if(WiFi.status() != WL_CONNECTED){
+    
+    Serial.println("TRY TO CONNECT");
+    while(WiFi.status() != WL_CONNECTED){
+      WiFi.begin(ssid, pass);
+      Serial.println("...");
+      delay(5000);
+    }
+    Serial.println("CONNECTED");
+    
+  }
+
+  //READ DATA
+  data_download = ThingSpeak.readLongField(myChannel_ID, 
+  FieldNumber_data, myReadAPIKey);
+
+  int statusCode = ThingSpeak.getLastReadStatus();
+  if(statusCode == 200){
+    Serial.println("IT WORKED");
+    Serial.println(data_download);
+  }
+  delay(wait);
+  }
